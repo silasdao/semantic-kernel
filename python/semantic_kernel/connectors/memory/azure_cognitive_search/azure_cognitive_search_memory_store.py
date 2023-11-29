@@ -187,10 +187,7 @@ class AzureCognitiveSearchMemoryStore(MemoryStoreBase):
                 name=collection_name.lower()
             )
 
-            if collection_result:
-                return True
-            else:
-                return False
+            return bool(collection_result)
         except ResourceNotFoundError:
             return False
 
@@ -206,9 +203,7 @@ class AzureCognitiveSearchMemoryStore(MemoryStoreBase):
         """
 
         result = await self.upsert_batch_async(collection_name, [record])
-        if result:
-            return result[0]
-        return None
+        return result[0] if result else None
 
     async def upsert_batch_async(
         self, collection_name: str, records: List[MemoryRecord]
@@ -246,10 +241,7 @@ class AzureCognitiveSearchMemoryStore(MemoryStoreBase):
         result = await search_client.upload_documents(documents=search_records)
         await search_client.close()
 
-        if result[0].succeeded:
-            return search_ids
-        else:
-            return None
+        return search_ids if result[0].succeeded else None
 
     async def get_async(
         self, collection_name: str, key: str, with_embedding: bool = False
@@ -372,10 +364,7 @@ class AzureCognitiveSearchMemoryStore(MemoryStoreBase):
             limit=1,
         )
 
-        if len(memory_records) > 0:
-            return memory_records[0]
-        else:
-            return None
+        return memory_records[0] if len(memory_records) > 0 else None
 
     async def get_nearest_matches_async(
         self,

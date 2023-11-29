@@ -112,14 +112,13 @@ def pyarrow_table_to_memoryrecords(
     Returns:
         List[MemoryRecord]: List of MemoryRecords constructed from the table.
     """
-    result_memory_records = [
+    return [
         MemoryRecord(
-            **row.to_dict(), embedding=vectors[index] if vectors is not None else None
+            **row.to_dict(),
+            embedding=vectors[index] if vectors is not None else None
         )
         for index, row in table.to_pandas().iterrows()
     ]
-
-    return result_memory_records
 
 
 class USearchMemoryStore(MemoryStoreBase):
@@ -307,8 +306,7 @@ class USearchMemoryStore(MemoryStoreBase):
 
     async def delete_collection_async(self, collection_name: str) -> None:
         collection_name = collection_name.lower()
-        collection = self._collections.pop(collection_name, None)
-        if collection:
+        if collection := self._collections.pop(collection_name, None):
             collection.embeddings_index.reset()
         return None
 

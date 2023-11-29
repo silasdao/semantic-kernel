@@ -82,16 +82,8 @@ def process_completion_request(request, model):
 
     try:
         prompt = json_data["inputs"]
-        if "context" in json_data:
-            context = json_data["context"]
-        else:
-            context = ""
-
-        if "max_tokens" in json_data:
-            max_tokens = json_data["max_tokens"]
-        else:
-            max_tokens = 64
-
+        context = json_data["context"] if "context" in json_data else ""
+        max_tokens = json_data["max_tokens"] if "max_tokens" in json_data else 64
         inference_generator = CompletionGenerator.CompletionGenerator(model)
         (
             result,
@@ -105,9 +97,7 @@ def process_completion_request(request, model):
         )
     except Exception as e:
         print(e)
-        return "Sorry, unable to perform sentence completion with model {}".format(
-            model
-        )
+        return f"Sorry, unable to perform sentence completion with model {model}"
 
 
 def process_embedding_request(request, model):
@@ -125,7 +115,7 @@ def process_embedding_request(request, model):
         )
     except Exception as e:
         print(e)
-        return "Sorry, unable to generate embeddings with model {}".format(model)
+        return f"Sorry, unable to generate embeddings with model {model}"
 
 
 def process_image_generation_request(request, model):
@@ -143,7 +133,7 @@ def process_image_generation_request(request, model):
         return jsonify(create_responses.create_image_gen_response(image_data))
     except Exception as e:
         print(e)
-        return "Sorry, unable to generate images with model {}".format(model)
+        return f"Sorry, unable to generate images with model {model}"
 
 
 def save_api_key(request):
@@ -151,9 +141,7 @@ def save_api_key(request):
     header_prefix = "Bearer "
 
     if auth_header and auth_header.startswith(header_prefix):
-        token = auth_header[len(header_prefix) :]
-
-        if token:
+        if token := auth_header[len(header_prefix) :]:
             HfFolder.save_token(token)
 
 

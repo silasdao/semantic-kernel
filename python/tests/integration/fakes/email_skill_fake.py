@@ -16,9 +16,7 @@ class EmailSkillFake:
         name="GetEmailAddress",
     )
     def get_email_address(self, input: str) -> str:
-        if input == "":
-            return "johndoe1234@example.com"
-        return f"{input}@example.com"
+        return "johndoe1234@example.com" if not input else f"{input}@example.com"
 
     @sk_function(description="Write a short poem for an e-mail", name="WritePoem")
     def write_poem(self, input: str) -> str:

@@ -65,10 +65,7 @@ class GooglePalmChatCompletion(ChatCompletionClientBase, TextCompletionClientBas
                 for candidate in response.candidates
             ]
         else:
-            if response.last is None:
-                return "I don't know."  # PaLM returns None if it doesn't know
-            else:
-                return response.last
+            return "I don't know." if response.last is None else response.last
 
     async def complete_chat_stream_async(
         self,
@@ -106,10 +103,7 @@ class GooglePalmChatCompletion(ChatCompletionClientBase, TextCompletionClientBas
                 for candidate in response.candidates
             ]
         else:
-            if response.last is None:
-                return "I don't know."  # PaLM returns None if it doesn't know
-            else:
-                return response.last
+            return "I don't know." if response.last is None else response.last
 
     async def complete_stream_async(
         self,
@@ -194,10 +188,7 @@ class GooglePalmChatCompletion(ChatCompletionClientBase, TextCompletionClientBas
             if len(messages) > 1:  # Check if we need context from messages
                 for index, (role, message) in enumerate(messages):
                     if index < len(messages) - 1:
-                        if role == "system":
-                            context += message + "\n"
-                        else:
-                            context += role + ": " + message + "\n"
+                        context += message + "\n" if role == "system" else f"{role}: {message}" + "\n"
         try:
             if self._message_history is None:
                 response = palm.chat(  # Start a new conversation

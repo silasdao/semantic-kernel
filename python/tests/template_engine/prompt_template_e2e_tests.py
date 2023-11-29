@@ -141,9 +141,7 @@ class TestPromptTemplateEngine:
         assert '== a"b != 123 ==' == result
 
     @mark.asyncio
-    @mark.parametrize(
-        "template,expected_result", [(t, r) for t, r in _get_template_language_tests()]
-    )
+    @mark.parametrize("template,expected_result", list(_get_template_language_tests()))
     async def test_it_handle_edge_cases_async(
         self, template: str, expected_result: str
     ):

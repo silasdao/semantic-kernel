@@ -81,16 +81,15 @@ class MathSkill(PydanticField):
             )
 
         context_amount = context["Amount"]
-        if context_amount is not None:
-            try:
-                amount = int(context_amount)
-            except ValueError:
-                raise ValueError(
-                    "Context amount provided is not in numeric format:"
-                    f" {context_amount}"
-                )
-
-            result = initial_value + amount if add else initial_value - amount
-            return str(result)
-        else:
+        if context_amount is None:
             raise ValueError("Context amount should not be None.")
+        try:
+            amount = int(context_amount)
+        except ValueError:
+            raise ValueError(
+                "Context amount provided is not in numeric format:"
+                f" {context_amount}"
+            )
+
+        result = initial_value + amount if add else initial_value - amount
+        return str(result)

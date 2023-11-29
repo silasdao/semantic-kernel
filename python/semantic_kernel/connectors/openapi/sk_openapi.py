@@ -127,14 +127,13 @@ class RestApiOperation:
             processed_headers["Content-Type"] = content_type
             processed_payload = request_body
 
-        req = PreparedRestApiRequest(
+        return PreparedRestApiRequest(
             method=self.method,
             url=url,
             params=processed_query_params,
             headers=processed_headers,
             request_body=processed_payload,
         )
-        return req
 
     def __repr__(self):
         return (
@@ -183,7 +182,7 @@ class OpenApiParser:
                 request_method = method.lower()
 
                 parameters = details.get("parameters", [])
-                operationId = details.get("operationId", path + "_" + request_method)
+                operationId = details.get("operationId", f"{path}_{request_method}")
                 summary = details.get("summary", None)
                 description = details.get("description", None)
 

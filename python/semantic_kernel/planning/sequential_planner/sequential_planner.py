@@ -84,7 +84,7 @@ class SequentialPlanner:
         )
 
     async def create_plan_async(self, goal: str) -> Plan:
-        if len(goal) == 0:
+        if not goal:
             raise PlanningException(
                 PlanningException.ErrorCodes.InvalidGoal, "The goal specified is empty"
             )

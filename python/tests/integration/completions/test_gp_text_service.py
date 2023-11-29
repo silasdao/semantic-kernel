@@ -27,7 +27,7 @@ async def test_text2text_generation_input_str(setup_gp_text_completion_function)
 
     output = str(summary).strip()
     print(f"Completion using input string: '{output}'")
-    assert len(output) > 0
+    assert output != ""
 
 
 @pytest.mark.asyncio
@@ -40,7 +40,7 @@ async def test_text2text_generation_input_vars(setup_gp_text_completion_function
 
     output = str(summary).strip()
     print(f"Completion using context variables: '{output}'")
-    assert len(output) > 0
+    assert output != ""
 
 
 @pytest.mark.asyncio
@@ -54,7 +54,7 @@ async def test_text2text_generation_input_context(setup_gp_text_completion_funct
 
     output = str(summary).strip()
     print(f"Completion using input context: '{output}'")
-    assert len(output) > 0
+    assert output != ""
 
 
 @pytest.mark.asyncio
@@ -73,7 +73,7 @@ async def test_text2text_generation_input_context_with_vars(
 
     output = str(summary).strip()
     print(f"Completion using context and additional variables: '{output}'")
-    assert len(output) > 0
+    assert output != ""
 
 
 @pytest.mark.asyncio
@@ -91,7 +91,7 @@ async def test_text2text_generation_input_context_with_str(
 
     output = str(summary).strip()
     print(f"Completion using context and additional string: '{output}'")
-    assert len(output) > 0
+    assert output != ""
 
 
 @pytest.mark.asyncio
@@ -115,4 +115,4 @@ async def test_text2text_generation_input_context_with_vars_and_str(
     print(
         f"Completion using context, additional variables, and additional string: '{output}'"
     )
-    assert len(output) > 0
+    assert output != ""

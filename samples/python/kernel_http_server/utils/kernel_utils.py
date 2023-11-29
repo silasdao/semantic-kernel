@@ -62,10 +62,10 @@ def create_kernel_for_request(req: func.HttpRequest, skills: List[str]):
             )
 
     try:
-        if (
-            api_config.serviceid == AIService.OPENAI.value
-            or api_config.serviceid == AIService.OPENAI.name
-        ):
+        if api_config.serviceid in [
+            AIService.OPENAI.value,
+            AIService.OPENAI.name,
+        ]:
             # Add an OpenAI backend
             kernel.add_text_completion_service(
                 "dv",
@@ -75,10 +75,10 @@ def create_kernel_for_request(req: func.HttpRequest, skills: List[str]):
                     org_id=api_config.org_id,
                 ),
             )
-        elif (
-            api_config.serviceid == AIService.AZURE_OPENAI.value
-            or api_config.serviceid == AIService.AZURE_OPENAI.name
-        ):
+        elif api_config.serviceid in [
+            AIService.AZURE_OPENAI.value,
+            AIService.AZURE_OPENAI.name,
+        ]:
             # Add an Azure backend
             kernel.add_text_completion_service(
                 "dv",

@@ -149,16 +149,16 @@ async def test_azure_text_embedding_calls_with_parameters() -> None:
 async def test_azure_text_embedding_calls_with_batches() -> None:
     mock_openai = AsyncMock()
     with patch(
-        "semantic_kernel.connectors.ai.open_ai.services.open_ai_text_embedding.openai",
-        new=mock_openai,
-    ):
+            "semantic_kernel.connectors.ai.open_ai.services.open_ai_text_embedding.openai",
+            new=mock_openai,
+        ):
         deployment_name = "test_deployment"
         endpoint = "https://test-endpoint.com"
         api_key = "test_api_key"
         api_type = "azure"
         api_version = "2023-03-15-preview"
         logger = Logger("test_logger")
-        texts = [i for i in range(0, 5)]
+        texts = list(range(0, 5))
 
         azure_text_embedding = AzureTextEmbedding(
             deployment_name=deployment_name,
@@ -179,7 +179,7 @@ async def test_azure_text_embedding_calls_with_batches() -> None:
                     api_base=endpoint,
                     api_version=api_version,
                     organization=None,
-                    input=texts[0:3],
+                    input=texts[:3],
                 ),
                 call.Embedding.acreate().__getitem__("data"),
                 call.Embedding.acreate().__getitem__().__iter__(),

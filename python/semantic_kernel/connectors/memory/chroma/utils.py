@@ -36,8 +36,8 @@ def query_results_to_records(
     except IndexError:
         return []
 
-    if with_embedding:
-        memory_records = [
+    return (
+        [
             (
                 MemoryRecord(
                     is_reference=(metadata["is_reference"] == "True"),
@@ -58,8 +58,8 @@ def query_results_to_records(
                 results["metadatas"][0],
             )
         ]
-    else:
-        memory_records = [
+        if with_embedding
+        else [
             (
                 MemoryRecord(
                     is_reference=(metadata["is_reference"] == "True"),
@@ -79,7 +79,7 @@ def query_results_to_records(
                 results["metadatas"][0],
             )
         ]
-    return memory_records
+    )
 
 
 def chroma_compute_similarity_scores(
@@ -102,19 +102,18 @@ def chroma_compute_similarity_scores(
     # between zero similarity from orthogonal vectors and invalid similarity
     similarity_scores = array([-1.0] * embedding_array.shape[0])
 
-    if valid_indices.any():
-        similarity_scores[valid_indices] = embedding.dot(
-            embedding_array[valid_indices].T
-        ) / (query_norm * collection_norm[valid_indices])
-        if not valid_indices.all() and logger:
-            logger.warning(
-                "Some vectors in the embedding collection are zero vectors."
-                "Ignoring cosine similarity score computation for those vectors."
-            )
-    else:
+    if not valid_indices.any():
         raise ValueError(
             f"Invalid vectors, cannot compute cosine similarity scores"
             f"for zero vectors"
             f"{embedding_array} or {embedding}"
+        )
+    similarity_scores[valid_indices] = embedding.dot(
+        embedding_array[valid_indices].T
+    ) / (query_norm * collection_norm[valid_indices])
+    if not valid_indices.all() and logger:
+        logger.warning(
+            "Some vectors in the embedding collection are zero vectors."
+            "Ignoring cosine similarity score computation for those vectors."
         )
     return similarity_scores

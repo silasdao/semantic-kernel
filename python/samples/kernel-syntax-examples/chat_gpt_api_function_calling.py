@@ -83,13 +83,9 @@ async def chat(context: sk.SKContext) -> Tuple[bool, sk.SKContext]:
     try:
         user_input = input("User:> ")
         context.variables["user_input"] = user_input
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         print("\n\nExiting chat...")
         return False, None
-    except EOFError:
-        print("\n\nExiting chat...")
-        return False, None
-
     if user_input == "exit":
         print("\n\nExiting chat...")
         return False, None

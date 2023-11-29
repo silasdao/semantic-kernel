@@ -137,8 +137,7 @@ class KernelServer:
 
         # Converting int args to string
         for subtask in subtasks:
-            args = subtask.get("args", None)
-            if args:
+            if args := subtask.get("args", None):
                 args = {k: str(v) for k, v in args.items()}
                 subtask["args"] = args
 

@@ -46,7 +46,7 @@ class HuggingFaceTextEmbedding(EmbeddingGeneratorBase):
             )
 
         self.device = (
-            "cuda:" + str(device)
+            f"cuda:{str(device)}"
             if device >= 0 and torch.cuda.is_available()
             else "cpu"
         )

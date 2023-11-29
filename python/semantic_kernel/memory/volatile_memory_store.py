@@ -33,9 +33,7 @@ class VolatileMemoryStore(MemoryStoreBase):
         Returns:
             None
         """
-        if collection_name in self._store:
-            pass
-        else:
+        if collection_name not in self._store:
             self._store[collection_name] = {}
 
     async def get_collections_async(
@@ -308,19 +306,18 @@ class VolatileMemoryStore(MemoryStoreBase):
         # between zero similarity from orthogonal vectors and invalid similarity
         similarity_scores = array([-1.0] * embedding_array.shape[0])
 
-        if valid_indices.any():
-            similarity_scores[valid_indices] = embedding.dot(
-                embedding_array[valid_indices].T
-            ) / (query_norm * collection_norm[valid_indices])
-            if not valid_indices.all():
-                self._logger.warning(
-                    "Some vectors in the embedding collection are zero vectors."
-                    "Ignoring cosine similarity score computation for those vectors."
-                )
-        else:
+        if not valid_indices.any():
             raise ValueError(
                 f"Invalid vectors, cannot compute cosine similarity scores"
                 f"for zero vectors"
                 f"{embedding_array} or {embedding}"
+            )
+        similarity_scores[valid_indices] = embedding.dot(
+            embedding_array[valid_indices].T
+        ) / (query_norm * collection_norm[valid_indices])
+        if not valid_indices.all():
+            self._logger.warning(
+                "Some vectors in the embedding collection are zero vectors."
+                "Ignoring cosine similarity score computation for those vectors."
             )
         return similarity_scores

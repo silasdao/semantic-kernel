@@ -21,8 +21,7 @@ async def retry(func, retries=3):
     max_delay = 7
     for i in range(retries):
         try:
-            result = await func()
-            return result
+            return await func()
         except Exception:
             if i == retries - 1:  # Last retry
                 raise

@@ -100,9 +100,7 @@ class ContextVariables(SKBaseModel):
             Optional[str] -- The variable value, or the default value if not found.
         """
         name = name.lower()
-        if name in self.variables:
-            return self.variables[name]
-        return value
+        return self.variables[name] if name in self.variables else value
 
     def __getitem__(self, name: str) -> str:
         return self.variables[name.lower()]

@@ -137,10 +137,7 @@ class ChromaMemoryStore(MemoryStoreBase):
         Returns:
             bool -- True if the collection exists; otherwise, False.
         """
-        if await self.get_collection_async(collection_name) is None:
-            return False
-        else:
-            return True
+        return not await self.get_collection_async(collection_name) is None
 
     async def upsert_async(self, collection_name: str, record: MemoryRecord) -> str:
         """Upserts a single MemoryRecord.
@@ -235,8 +232,7 @@ class ChromaMemoryStore(MemoryStoreBase):
         )
 
         value = collection.get(ids=keys, include=query_includes)
-        record = query_results_to_records(value, with_embeddings)
-        return record
+        return query_results_to_records(value, with_embeddings)
 
     async def remove_async(self, collection_name: str, key: str) -> None:
         """Removes a record.
@@ -284,7 +280,7 @@ class ChromaMemoryStore(MemoryStoreBase):
         Returns:
             List[Tuple[MemoryRecord, float]] -- The records and their relevance scores.
         """
-        if with_embeddings is False:
+        if not with_embeddings:
             self._logger.warning(
                 "Chroma returns distance score not cosine similarity score.\
                 So embeddings are automatically queried from database for calculation."
@@ -313,13 +309,12 @@ class ChromaMemoryStore(MemoryStoreBase):
         similarity_score = chroma_compute_similarity_scores(embedding, embedding_array)
 
         # Convert query results into memory records
-        record_list = [
-            (record, distance)
-            for record, distance in zip(
+        record_list = list(
+            zip(
                 query_results_to_records(query_results, with_embeddings),
                 similarity_score,
             )
-        ]
+        )
 
         sorted_results = sorted(
             record_list,
@@ -328,9 +323,7 @@ class ChromaMemoryStore(MemoryStoreBase):
         )
 
         filtered_results = [x for x in sorted_results if x[1] >= min_relevance_score]
-        top_results = filtered_results[:limit]
-
-        return top_results
+        return filtered_results[:limit]
 
     async def get_nearest_match_async(
         self,

@@ -13,8 +13,8 @@ from semantic_kernel.connectors.openapi.sk_openapi import (
 )
 
 directory = os.path.dirname(os.path.realpath(__file__))
-openapi_document = directory + "/openapi.yaml"
-invalid_openapi_document = directory + "/invalid_openapi.yaml"
+openapi_document = f"{directory}/openapi.yaml"
+invalid_openapi_document = f"{directory}/invalid_openapi.yaml"
 with open(openapi_document, "r") as f:
     openapi_document_json = yaml.safe_load(f)
 spec = Spec.from_dict(openapi_document_json)
@@ -198,7 +198,7 @@ def test_parse_invalid_format():
 def test_create_rest_api_operations():
     parser = OpenApiParser()
     result = parser.create_rest_api_operations(parser.parse(openapi_document))
-    assert all([operation in result for operation in operation_names])
+    assert all(operation in result for operation in operation_names)
 
     get_todos_rest_api_operation = result["getTodos"]
     assert get_todos_rest_api_operation.method.lower() == "get"

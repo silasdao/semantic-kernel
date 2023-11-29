@@ -43,13 +43,11 @@ def wait_between_tests():
 
 @pytest.fixture(scope="session")
 def connection_string():
-    if "Python_Integration_Tests" in os.environ:
-        connection_string = os.environ["Postgres__Connectionstr"]
-    else:
-        # Load credentials from .env file
-        connection_string = sk.postgres_settings_from_dot_env()
-
-    return connection_string
+    return (
+        os.environ["Postgres__Connectionstr"]
+        if "Python_Integration_Tests" in os.environ
+        else sk.postgres_settings_from_dot_env()
+    )
 
 
 @pytest.fixture

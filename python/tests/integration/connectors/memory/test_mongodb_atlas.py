@@ -71,8 +71,8 @@ async def vector_search_store():
     if "Python_Integration_Tests" in os.environ:
         connection_string = os.environ["MONGODB_ATLAS_CONNECTION_STRING"]
     async with MongoDBAtlasMemoryStore(
-        connection_string=connection_string, database_name="pyMSKTest"
-    ) as memory:
+            connection_string=connection_string, database_name="pyMSKTest"
+        ) as memory:
         # Delete all collections before and after
         for cname in await memory.get_collections_async():
             await memory.delete_collection_async(cname)
@@ -103,7 +103,6 @@ async def vector_search_store():
         try:
             yield memory
         finally:
-            pass
             for cname in await memory.get_collections_async():
                 await memory.delete_collection_async(cname)
 

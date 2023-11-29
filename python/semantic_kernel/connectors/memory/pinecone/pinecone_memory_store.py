@@ -393,7 +393,7 @@ class PineconeMemoryStore(MemoryStoreBase):
     ) -> "FetchResponse":
         index = pinecone.Index(collection_name)
         if len(keys) > MAX_FETCH_BATCH_SIZE:
-            fetch_response = index.fetch(keys[0:MAX_FETCH_BATCH_SIZE])
+            fetch_response = index.fetch(keys[:MAX_FETCH_BATCH_SIZE])
             for i in range(MAX_FETCH_BATCH_SIZE, len(keys), MAX_FETCH_BATCH_SIZE):
                 fetch_response.vectors.update(
                     index.fetch(keys[i : i + MAX_FETCH_BATCH_SIZE]).vectors

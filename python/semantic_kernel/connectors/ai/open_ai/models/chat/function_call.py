@@ -26,9 +26,7 @@ class FunctionCall(SKBaseModel):
 
     def split_name(self) -> Tuple[str, str]:
         """Split the name into a skill and function name."""
-        if "-" not in self.name:
-            return None, self.name
-        return self.name.split("-")
+        return (None, self.name) if "-" not in self.name else self.name.split("-")
 
     def split_name_dict(self) -> dict:
         """Split the name into a skill and function name."""

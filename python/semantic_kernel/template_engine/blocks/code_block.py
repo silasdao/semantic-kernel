@@ -49,10 +49,7 @@ class CodeBlock(Block):
                 self.log.error(error_msg)
                 return False, error_msg
 
-            if (
-                self._tokens[1].type != BlockTypes.VALUE
-                and self._tokens[1].type != BlockTypes.VARIABLE
-            ):
+            if self._tokens[1].type not in [BlockTypes.VALUE, BlockTypes.VARIABLE]:
                 error_msg = "Functions support only one parameter"
                 self.log.error(error_msg)
                 return False, error_msg

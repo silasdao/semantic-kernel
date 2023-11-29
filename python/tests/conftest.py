@@ -56,8 +56,7 @@ def enable_debug_mode():
 
 @pytest.fixture(scope="session")
 def create_kernel():
-    kernel = sk.Kernel()
-    return kernel
+    return sk.Kernel()
 
 
 @pytest.fixture(scope="session")
@@ -111,10 +110,8 @@ def context_factory() -> t.Callable[[ContextVariables], SKContext]:
 
 @pytest.fixture(scope="session")
 def get_gp_config():
-    if "Python_Integration_Tests" in os.environ:
-        api_key = os.environ["GOOGLE_PALM_API_KEY"]
-    else:
-        # Load credentials from .env file
-        api_key = sk.google_palm_settings_from_dot_env()
-
-    return api_key
+    return (
+        os.environ["GOOGLE_PALM_API_KEY"]
+        if "Python_Integration_Tests" in os.environ
+        else sk.google_palm_settings_from_dot_env()
+    )

@@ -274,10 +274,12 @@ class MongoDBAtlasMemoryStore(MemoryStoreBase):
             }
         }
 
-        pipeline.append(vector_search_query)
-        # add meta search scoring
-        pipeline.append({"$set": {"score": {"$meta": "vectorSearchScore"}}})
-
+        pipeline.extend(
+            (
+                vector_search_query,
+                {"$set": {"score": {"$meta": "vectorSearchScore"}}},
+            )
+        )
         if min_relevance_score:
             pipeline.append({"$match": {"$gte": ["$score", min_relevance_score]}})
 

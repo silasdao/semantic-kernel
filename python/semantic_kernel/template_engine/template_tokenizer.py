@@ -73,9 +73,7 @@ class TemplateTokenizer(PydanticField):
                 block_start_pos = current_char_pos
                 block_start_found = True
 
-            # After having found "{{"
             if block_start_found:
-                # While inside a text value, when the end quote is found
                 if inside_text_value:
                     if current_char == Symbols.ESCAPE_CHAR and self._can_be_escaped(
                         next_char
@@ -85,74 +83,74 @@ class TemplateTokenizer(PydanticField):
 
                     if current_char == text_value_delimiter:
                         inside_text_value = False
-                else:
-                    # A value starts here
-                    if current_char in (Symbols.DBL_QUOTE, Symbols.SGL_QUOTE):
-                        inside_text_value = True
-                        text_value_delimiter = current_char
-                    # If the block ends here
-                    elif (
+                elif current_char in (Symbols.DBL_QUOTE, Symbols.SGL_QUOTE):
+                    inside_text_value = True
+                    text_value_delimiter = current_char
+                elif (
                         current_char == Symbols.BLOCK_ENDER
                         and next_char == Symbols.BLOCK_ENDER
                     ):
-                        # If there is plain text between the current
-                        # var/val/code block and the previous one,
-                        # add it as a text block
-                        if block_start_pos > end_of_last_block:
-                            blocks.append(
-                                TextBlock.from_text(
-                                    text,
-                                    end_of_last_block,
-                                    block_start_pos,
-                                    log=self.log,
+                    # If there is plain text between the current
+                    # var/val/code block and the previous one,
+                    # add it as a text block
+                    if block_start_pos > end_of_last_block:
+                        blocks.append(
+                            TextBlock.from_text(
+                                text,
+                                end_of_last_block,
+                                block_start_pos,
+                                log=self.log,
+                            )
+                        )
+
+                    # Extract raw block
+                    content_with_delimiters = text[block_start_pos : cursor + 1]
+                    # Remove "{{" and "}}" delimiters and trim whitespace
+                    content_without_delimiters = content_with_delimiters[
+                        2:-2
+                    ].strip()
+
+                    if len(content_without_delimiters) == 0:
+                        # If what is left is empty, consider the raw block
+                        # a TextBlock
+                        blocks.append(
+                            TextBlock.from_text(
+                                content_with_delimiters, log=self.log
+                            )
+                        )
+                    else:
+                        code_blocks = self.code_tokenizer.tokenize(
+                            content_without_delimiters
+                        )
+
+                        first_block_type = code_blocks[0].type
+
+                        if first_block_type == BlockTypes.VARIABLE:
+                            if len(code_blocks) > 1:
+                                raise ValueError(
+                                    "Invalid token detected after the "
+                                    f"variable: {content_without_delimiters}"
                                 )
-                            )
 
-                        # Extract raw block
-                        content_with_delimiters = text[block_start_pos : cursor + 1]
-                        # Remove "{{" and "}}" delimiters and trim whitespace
-                        content_without_delimiters = content_with_delimiters[
-                            2:-2
-                        ].strip()
-
-                        if len(content_without_delimiters) == 0:
-                            # If what is left is empty, consider the raw block
-                            # a TextBlock
-                            blocks.append(
-                                TextBlock.from_text(
-                                    content_with_delimiters, log=self.log
+                            else:
+                                blocks.append(code_blocks[0])
+                        elif first_block_type == BlockTypes.VALUE:
+                            if len(code_blocks) > 1:
+                                raise ValueError(
+                                    "Invalid token detected after the "
+                                    "value: {content_without_delimiters}"
                                 )
-                            )
-                        else:
-                            code_blocks = self.code_tokenizer.tokenize(
-                                content_without_delimiters
-                            )
 
-                            first_block_type = code_blocks[0].type
-
-                            if first_block_type == BlockTypes.VARIABLE:
-                                if len(code_blocks) > 1:
-                                    raise ValueError(
-                                        "Invalid token detected after the "
-                                        f"variable: {content_without_delimiters}"
-                                    )
-
+                            else:
                                 blocks.append(code_blocks[0])
-                            elif first_block_type == BlockTypes.VALUE:
-                                if len(code_blocks) > 1:
-                                    raise ValueError(
-                                        "Invalid token detected after the "
-                                        "value: {content_without_delimiters}"
-                                    )
+                        elif first_block_type == BlockTypes.FUNCTION_ID:
+                            if len(code_blocks) > 2:
+                                raise ValueError(
+                                    "Functions support only one "
+                                    f"parameter: {content_without_delimiters}"
+                                )
 
-                                blocks.append(code_blocks[0])
-                            elif first_block_type == BlockTypes.FUNCTION_ID:
-                                if len(code_blocks) > 2:
-                                    raise ValueError(
-                                        "Functions support only one "
-                                        f"parameter: {content_without_delimiters}"
-                                    )
-
+                            else:
                                 blocks.append(
                                     CodeBlock(
                                         content_without_delimiters,
@@ -160,14 +158,14 @@ class TemplateTokenizer(PydanticField):
                                         self.log,
                                     )
                                 )
-                            else:
-                                raise ValueError(
-                                    "Code tokenizer returned an incorrect "
-                                    f"first token type {first_block_type}"
-                                )
+                        else:
+                            raise ValueError(
+                                "Code tokenizer returned an incorrect "
+                                f"first token type {first_block_type}"
+                            )
 
-                        end_of_last_block = cursor + 1
-                        block_start_found = False
+                    end_of_last_block = cursor + 1
+                    block_start_found = False
 
         # If there is something left after the last block, capture it as a TextBlock
         if end_of_last_block < len(text):

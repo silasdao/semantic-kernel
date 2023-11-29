@@ -390,17 +390,16 @@ class SKFunction(SKFunctionBase):
         except RuntimeError:
             loop = None
 
-        # Handle "asyncio.run() cannot be called from a running event loop"
         if loop and loop.is_running():
-            if self.is_semantic:
-                return self._runThread(self._invoke_semantic_async(context, settings))
-            else:
-                return self._runThread(self._invoke_native_async(context))
+            return (
+                self._runThread(self._invoke_semantic_async(context, settings))
+                if self.is_semantic
+                else self._runThread(self._invoke_native_async(context))
+            )
+        if self.is_semantic:
+            return asyncio.run(self._invoke_semantic_async(context, settings))
         else:
-            if self.is_semantic:
-                return asyncio.run(self._invoke_semantic_async(context, settings))
-            else:
-                return asyncio.run(self._invoke_native_async(context))
+            return asyncio.run(self._invoke_native_async(context))
 
     async def invoke_async(
         self,
@@ -476,9 +475,7 @@ class SKFunction(SKFunctionBase):
         # for python3.9 compatibility (staticmethod is not callable)
         if not hasattr(delegate, "__call__"):
             delegate = delegate.__func__
-        new_context = await delegate(self._function, context)
-
-        return new_context
+        return await delegate(self._function, context)
 
     def _verify_is_semantic(self) -> None:
         if self._is_semantic:
@@ -570,9 +567,7 @@ class SKFunction(SKFunctionBase):
             yield stream_msg
 
     async def _invoke_native_stream_async(self, context):
-        result = await self._invoke_native_async(context)
-
-        yield result
+        yield await self._invoke_native_async(context)
 
     def _ensure_context_has_skills(self, context) -> None:
         if context.skills is not None:

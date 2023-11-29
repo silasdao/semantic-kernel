@@ -39,35 +39,32 @@ class SequentialPlanParser:
         get_skill_function: Callable[[str, str], Optional[SKFunctionBase]],
         allow_missing_functions: bool = False,
     ):
-        xml_string = "<xml>" + xml_string + "</xml>"
+        xml_string = f"<xml>{xml_string}</xml>"
         try:
             xml_doc = ET.fromstring(xml_string)
         except ET.ParseError:
             # Attempt to parse <plan> out of it
             plan_regex = re.compile(r"<plan\b[^>]*>(.*?)</plan>", re.DOTALL)
-            match = plan_regex.search(xml_string)
-
-            if match:
-                plan_xml = match.group(0)
-                try:
-                    xml_doc = ET.fromstring("<xml>" + plan_xml + "</xml>")
-                except ET.ParseError:
-                    raise PlanningException(
-                        PlanningException.ErrorCodes.InvalidPlan,
-                        f"Failed to parse plan xml strings: '{xml_string}' or '{plan_xml}'",
-                    )
-            else:
+            if not (match := plan_regex.search(xml_string)):
                 raise PlanningException(
                     PlanningException.ErrorCodes.InvalidPlan,
                     f"Failed to parse plan xml string: '{xml_string}'",
                 )
 
-        solution = xml_doc.findall(".//" + SOLUTION_TAG)
+            plan_xml = match.group(0)
+            try:
+                xml_doc = ET.fromstring(f"<xml>{plan_xml}</xml>")
+            except ET.ParseError:
+                raise PlanningException(
+                    PlanningException.ErrorCodes.InvalidPlan,
+                    f"Failed to parse plan xml strings: '{xml_string}' or '{plan_xml}'",
+                )
+        solution = xml_doc.findall(f".//{SOLUTION_TAG}")
 
         plan = Plan.from_goal(goal)
         for solution_node in solution:
             for child_node in solution_node:
-                if child_node.tag == "#text" or child_node.tag == "#comment":
+                if child_node.tag in ["#text", "#comment"]:
                     continue
 
                 if child_node.tag.startswith(FUNCTION_TAG):
@@ -124,9 +121,7 @@ class SequentialPlanParser:
     @staticmethod
     def get_skill_function_names(skill_function_name: str) -> Tuple[str, str]:
         skill_function_name_parts = skill_function_name.split(".")
-        skill_name = (
-            skill_function_name_parts[0] if len(skill_function_name_parts) > 0 else ""
-        )
+        skill_name = skill_function_name_parts[0] if skill_function_name_parts else ""
         function_name = (
             skill_function_name_parts[1]
             if len(skill_function_name_parts) > 1

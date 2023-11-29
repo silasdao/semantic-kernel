@@ -37,9 +37,7 @@ class ReadOnlySkillCollection(SKBaseModel, ReadOnlySkillCollectionBase):
 
     def has_function(self, skill_name: Optional[str], function_name: str) -> bool:
         s_name, f_name = self._normalize_names(skill_name, function_name, True)
-        if s_name not in self.data:
-            return False
-        return f_name in self.data[s_name]
+        return False if s_name not in self.data else f_name in self.data[s_name]
 
     def has_semantic_function(self, skill_name: str, function_name: str) -> bool:
         s_name, f_name = self._normalize_names(skill_name, function_name)
@@ -90,11 +88,13 @@ class ReadOnlySkillCollection(SKBaseModel, ReadOnlySkillCollectionBase):
 
         for skill in self.data.values():
             for function in skill.values():
-                if include_semantic and function.is_semantic:
+                if (
+                    include_semantic
+                    and function.is_semantic
+                    or include_native
+                    and function.is_native
+                ):
                     result.add_function(function.describe())
-                elif include_native and function.is_native:
-                    result.add_function(function.describe())
-
         return result
 
     def get_function(

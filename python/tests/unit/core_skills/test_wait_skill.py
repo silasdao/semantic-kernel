@@ -41,8 +41,6 @@ async def test_wait_valid_params(wait_time):
 
     await skill.wait(wait_time)
 
-    assert True
-
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("wait_time", test_data_bad)

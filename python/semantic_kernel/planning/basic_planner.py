@@ -147,7 +147,7 @@ class BasicPlanner:
 
         for skill_name in skill_names:
             for func in all_functions[skill_name]:
-                key = skill_name + "." + func.name
+                key = f"{skill_name}.{func.name}"
                 all_functions_descriptions_dict[key] = func.description
                 all_functions_params_dict[key] = func.parameters
 
@@ -156,19 +156,14 @@ class BasicPlanner:
         for name in list(all_functions_descriptions_dict.keys()):
             available_functions_string += name + "\n"
             description = all_functions_descriptions_dict[name]
-            available_functions_string += "description: " + description + "\n"
+            available_functions_string += f"description: {description}" + "\n"
             available_functions_string += "args:\n"
 
             # Add the parameters for each function
             parameters = all_functions_params_dict[name]
             for param in parameters:
-                if not param.description:
-                    param_description = ""
-                else:
-                    param_description = param.description
-                available_functions_string += (
-                    "- " + param.name + ": " + param_description + "\n"
-                )
+                param_description = "" if not param.description else param.description
+                available_functions_string += f"- {param.name}: {param_description}" + "\n"
             available_functions_string += "\n"
 
         return available_functions_string
@@ -220,15 +215,10 @@ class BasicPlanner:
             skill_name, function_name = subtask["function"].split(".")
             sk_function = kernel.skills.get_function(skill_name, function_name)
 
-            # Get the arguments dictionary for the function
-            args = subtask.get("args", None)
-            if args:
+            if args := subtask.get("args", None):
                 for key, value in args.items():
                     context[key] = value
-                output = await sk_function.invoke_async(variables=context)
-
-            else:
-                output = await sk_function.invoke_async(variables=context)
+            output = await sk_function.invoke_async(variables=context)
 
             # Override the input context variable with the output of the function
             context["input"] = output.result

@@ -19,9 +19,7 @@ if not sys.platform.startswith("linux"):
 
 @pytest.fixture
 def documents():
-    records = []
-
-    records.append(
+    records = [
         MemoryRecord.local_record(
             "1",
             "The quick brown fox jumps over the lazy dog.",
@@ -29,7 +27,8 @@ def documents():
             "additional info",
             np.array([0.1, 0.1]),
         )
-    )
+    ]
+
     records.append(
         MemoryRecord.local_record(
             "2",
@@ -82,11 +81,10 @@ def memory_store():
             store = weaviate_memory_store.WeaviateMemoryStore(config)
             store.client.schema.delete_all()
         except Exception:
-            if attempt < max_attempts - 1:  # it's not the final attempt
-                time.sleep(delay)  # wait before retrying
-                continue  # go to the next attempt
-            else:  # it's the final attempt
+            if attempt >= max_attempts - 1:
                 raise  # re-raise the last exception
+            time.sleep(delay)  # wait before retrying
+            continue  # go to the next attempt
         else:
             break  # successful attempt, get out of the loop
 

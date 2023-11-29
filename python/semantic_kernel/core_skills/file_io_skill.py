@@ -46,8 +46,7 @@ class FileIOSkill(PydanticField):
         assert os.path.exists(path), f"File {path} does not exist"
 
         async with aiofiles.open(path, "r", encoding="UTF-8") as fp:
-            content = await fp.read()
-            return content
+            return await fp.read()
 
     @sk_function(
         description="Write a file",

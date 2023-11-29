@@ -30,7 +30,7 @@ class CodeTokenizer(PydanticField):
         text = text.strip() if text else ""
 
         # Render None/empty to []
-        if not text or text == "":
+        if not text:
             return []
 
         # Track what type of token we're reading

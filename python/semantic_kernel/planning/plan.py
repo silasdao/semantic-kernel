@@ -72,10 +72,7 @@ class Plan(SKFunctionBase):
 
     @property
     def is_native(self) -> bool:
-        if self._is_semantic is None:
-            return None
-        else:
-            return not self._is_semantic
+        return None if self._is_semantic is None else not self._is_semantic
 
     @property
     def request_settings(self) -> CompleteRequestSettings:
@@ -433,7 +430,7 @@ class Plan(SKFunctionBase):
     ) -> str:
         result = input_string
         variables_regex = r"\$(?P<var>\w+)"
-        matches = [m for m in re.finditer(variables_regex, input_string)]
+        matches = list(re.finditer(variables_regex, input_string))
         ordered_matches = sorted(
             matches, key=lambda m: len(m.group("var")), reverse=True
         )

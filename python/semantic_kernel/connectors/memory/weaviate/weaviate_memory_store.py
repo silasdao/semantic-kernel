@@ -217,13 +217,11 @@ class WeaviateMemoryStore(MemoryStoreBase):
 
         get_dict = results.get("data", {}).get("Get", {})
 
-        memory_records = [
+        return [
             self._convert_weaviate_doc_to_memory_record(doc)
             for docs in get_dict.values()
             for doc in docs
         ]
-
-        return memory_records
 
     def _build_multi_get_query(
         self, collection_name: str, keys: List[str], with_embedding: bool
@@ -303,7 +301,7 @@ class WeaviateMemoryStore(MemoryStoreBase):
 
         get_dict = results.get("data", {}).get("Get", {})
 
-        memory_records_and_scores = [
+        return [
             (
                 self._convert_weaviate_doc_to_memory_record(doc),
                 item["_additional"]["certainty"],
@@ -312,8 +310,6 @@ class WeaviateMemoryStore(MemoryStoreBase):
             for item in items
             for doc in [item]
         ]
-
-        return memory_records_and_scores
 
     async def get_nearest_match_async(
         self,

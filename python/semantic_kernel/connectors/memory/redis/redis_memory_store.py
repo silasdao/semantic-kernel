@@ -218,7 +218,7 @@ class RedisMemoryStore(MemoryStoreBase):
             List[str] -- Redis keys associated with the upserted memory records
         """
 
-        keys = list()
+        keys = []
         for record in records:
             record_key = await self.upsert_async(collection_name, record)
             keys.append(record_key)
@@ -271,7 +271,7 @@ class RedisMemoryStore(MemoryStoreBase):
             List[MemoryRecord] -- The memory records if found, else an empty list
         """
 
-        records = list()
+        records = []
         for key in keys:
             record = await self.get_async(collection_name, key, with_embeddings)
             if record:
@@ -350,7 +350,7 @@ class RedisMemoryStore(MemoryStoreBase):
         query_params = {"embedding": embedding.astype(self._vector_type).tobytes()}
         matches = self._ft(collection_name).search(query, query_params).docs
 
-        relevant_records = list()
+        relevant_records = []
         for match in matches:
             score = float(match["vector_score"])
 

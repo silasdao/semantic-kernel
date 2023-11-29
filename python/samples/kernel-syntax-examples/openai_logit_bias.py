@@ -83,13 +83,14 @@ async def chat_request_example(kernel, api_key, org_id):
     function_config = sk.SemanticFunctionConfig(prompt_config, prompt_template)
     kernel.register_semantic_function("ChatBot", "Chat", function_config)
 
-    chat_messages = list()
-    chat_messages.append(("user", user_mssg))
+    chat_messages = [("user", user_mssg)]
     answer = await openai_chat_completion.complete_chat_async(chat_messages, settings)
-    chat_messages.append(("assistant", str(answer)))
-
-    user_mssg = "What are his best all-time stats?"
-    chat_messages.append(("user", user_mssg))
+    chat_messages.extend(
+        (
+            ("assistant", str(answer)),
+            ("user", "What are his best all-time stats?"),
+        )
+    )
     answer = await openai_chat_completion.complete_chat_async(chat_messages, settings)
     chat_messages.append(("assistant", str(answer)))
 
@@ -97,12 +98,12 @@ async def chat_request_example(kernel, api_key, org_id):
     context_vars["chat_history"] = ""
     context_vars["chat_bot_ans"] = ""
     for role, mssg in chat_messages:
-        if role == "user":
-            context_vars["chat_history"] += f"User:> {mssg}\n"
-        elif role == "assistant":
+        if role == "assistant":
             context_vars["chat_history"] += f"ChatBot:> {mssg}\n"
             context_vars["chat_bot_ans"] += f"{mssg}\n"
 
+        elif role == "user":
+            context_vars["chat_history"] += f"User:> {mssg}\n"
     kernel.remove_chat_service("chat_service")
     return context_vars, banned_words
 

@@ -82,10 +82,7 @@ class QdrantMemoryStore(MemoryStoreBase):
         Returns:
             CollectionInfo -- Collection Information from Qdrant about collection.
         """
-        collection_info = self._qdrantclient.get_collection(
-            collection_name=collection_name
-        )
-        return collection_info
+        return self._qdrantclient.get_collection(collection_name=collection_name)
 
     async def delete_collection_async(self, collection_name: str) -> None:
         """Deletes a collection.
@@ -142,15 +139,13 @@ class QdrantMemoryStore(MemoryStoreBase):
     async def upsert_batch_async(
         self, collection_name: str, records: List[MemoryRecord]
     ) -> List[str]:
-        tasks = []
-        for record in records:
-            tasks.append(
-                self._convert_from_memory_record_async(
-                    collection_name=collection_name,
-                    record=record,
-                )
+        tasks = [
+            self._convert_from_memory_record_async(
+                collection_name=collection_name,
+                record=record,
             )
-
+            for record in records
+        ]
         data_to_upsert = await asyncio.gather(*tasks)
 
         result = self._qdrantclient.upsert(
@@ -190,15 +185,14 @@ class QdrantMemoryStore(MemoryStoreBase):
     async def get_batch_async(
         self, collection_name: str, keys: List[str], with_embeddings: bool = False
     ) -> List[MemoryRecord]:
-        tasks = []
-        for key in keys:
-            tasks.append(
-                self.get_async(
-                    collection_name=collection_name,
-                    key=key,
-                    with_embedding=with_embeddings,
-                )
+        tasks = [
+            self.get_async(
+                collection_name=collection_name,
+                key=key,
+                with_embedding=with_embeddings,
             )
+            for key in keys
+        ]
         return await asyncio.gather(*tasks)
 
     async def remove_async(self, collection_name: str, key: str) -> None:
@@ -217,16 +211,14 @@ class QdrantMemoryStore(MemoryStoreBase):
                 raise Exception("Delete failed")
 
     async def remove_batch_async(self, collection_name: str, keys: List[str]) -> None:
-        tasks = []
-        for key in keys:
-            tasks.append(
-                self._get_existing_record_by_payload_id_async(
-                    collection_name=collection_name,
-                    payload_id=key,
-                    with_embedding=False,
-                )
+        tasks = [
+            self._get_existing_record_by_payload_id_async(
+                collection_name=collection_name,
+                payload_id=key,
+                with_embedding=False,
             )
-
+            for key in keys
+        ]
         existing_records = await asyncio.gather(*tasks)
 
         if len(existing_records) > 0:
@@ -311,16 +303,14 @@ class QdrantMemoryStore(MemoryStoreBase):
             ]
         )
 
-        existing_record = self._qdrantclient.search(
+        if existing_record := self._qdrantclient.search(
             collection_name=collection_name,
             query_vector=[0.0] * self._default_vector_size,
             limit=1,
             query_filter=filter,
             with_payload=True,
             with_vectors=with_embedding,
-        )
-
-        if existing_record:
+        ):
             return existing_record[0]
         else:
             return None
@@ -337,11 +327,7 @@ class QdrantMemoryStore(MemoryStoreBase):
                 payload_id=record._id,
             )
 
-            if existing_record:
-                pointId = str(existing_record[0].id)
-            else:
-                pointId = str(uuid.uuid4())
-
+            pointId = str(existing_record[0].id) if existing_record else str(uuid.uuid4())
         payload = record.__dict__.copy()
         embedding = payload.pop("_embedding")
 

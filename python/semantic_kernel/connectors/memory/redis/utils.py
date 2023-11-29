@@ -51,9 +51,11 @@ def serialize_record_to_redis(
         "additional_metadata": record._additional_metadata or "",
     }
 
-    redis_mapping = {
+    return {
         "key": record._key or "",
-        "timestamp": record._timestamp.isoformat() if record._timestamp else "",
+        "timestamp": record._timestamp.isoformat()
+        if record._timestamp
+        else "",
         "metadata": json.dumps(all_metadata),
         "embedding": (
             record._embedding.astype(vector_type).tobytes()
@@ -61,7 +63,6 @@ def serialize_record_to_redis(
             else ""
         ),
     }
-    return redis_mapping
 
 
 def deserialize_redis_to_record(
@@ -70,7 +71,7 @@ def deserialize_redis_to_record(
     metadata = json.loads(fields[b"metadata"])
     record = MemoryRecord(
         id=metadata["id"],
-        is_reference=True if metadata["is_reference"] is True else False,
+        is_reference=metadata["is_reference"] is True,
         description=metadata["description"],
         external_source_name=metadata["external_source_name"],
         text=metadata["text"],
@@ -100,7 +101,7 @@ def deserialize_document_to_record(
     metadata = json.loads(doc["metadata"])
     record = MemoryRecord(
         id=id_str,
-        is_reference=True if metadata["is_reference"] is True else False,
+        is_reference=metadata["is_reference"] is True,
         description=metadata["description"],
         external_source_name=metadata["external_source_name"],
         text=metadata["text"],

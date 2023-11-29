@@ -50,13 +50,11 @@ class TempWebSearchEngineSkill:
 
 @pytest.fixture(scope="session")
 def get_bing_config():
-    if "Python_Integration_Tests" in os.environ:
-        api_key = os.environ["Bing__ApiKey"]
-    else:
-        # Load credentials from .env file
-        api_key = sk.bing_search_settings_from_dot_env()
-
-    return api_key
+    return (
+        os.environ["Bing__ApiKey"]
+        if "Python_Integration_Tests" in os.environ
+        else sk.bing_search_settings_from_dot_env()
+    )
 
 
 def initialize_kernel(get_aoai_config, use_embeddings=False, use_chat_model=False):

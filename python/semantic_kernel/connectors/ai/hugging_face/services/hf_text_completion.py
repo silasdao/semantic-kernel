@@ -62,7 +62,7 @@ class HuggingFaceTextCompletion(TextCompletionClientBase):
         try:
             import torch
             import transformers
-        except (ImportError, ModuleNotFoundError):
+        except ImportError:
             raise ImportError(
                 "Please ensure that torch and transformers are installed to use HuggingFaceTextCompletion"
             )
@@ -72,7 +72,7 @@ class HuggingFaceTextCompletion(TextCompletionClientBase):
             self.device = "cpu" if device_map is None else None
         else:
             self.device = (
-                "cuda:" + str(device)
+                f"cuda:{str(device)}"
                 if device >= 0 and torch.cuda.is_available()
                 else "cpu"
             )
@@ -108,23 +108,13 @@ class HuggingFaceTextCompletion(TextCompletionClientBase):
                 generation_config=generation_config,
             )
 
-            completions = list()
-            if self._task == "text-generation" or self._task == "text2text-generation":
-                for response in results:
-                    completions.append(response["generated_text"])
-                if len(completions) == 1:
-                    return completions[0]
-                else:
-                    return completions
-
+            completions = []
+            if self._task in ["text-generation", "text2text-generation"]:
+                completions.extend(response["generated_text"] for response in results)
+                return completions[0] if len(completions) == 1 else completions
             elif self._task == "summarization":
-                for response in results:
-                    completions.append(response["summary_text"])
-                if len(completions) == 1:
-                    return completions[0]
-                else:
-                    return completions
-
+                completions.extend(response["summary_text"] for response in results)
+                return completions[0] if len(completions) == 1 else completions
             else:
                 raise AIException(
                     AIException.ErrorCodes.InvalidConfiguration,

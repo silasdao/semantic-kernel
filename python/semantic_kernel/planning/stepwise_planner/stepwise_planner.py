@@ -62,7 +62,7 @@ SCRATCH_PAD_PREFIX = (
 
 
 def is_null_or_empty(value: str) -> bool:
-    return value is None or value == ""
+    return value is None or not value
 
 
 class StepwisePlanner:
@@ -217,17 +217,11 @@ class StepwisePlanner:
     def parse_result(self, input: str):
         result = SystemStep(original_response=input)
 
-        # Extract final answer
-        final_answer_match = re.search(S_FINAL_ANSWER_REGEX, input)
-
-        if final_answer_match:
+        if final_answer_match := re.search(S_FINAL_ANSWER_REGEX, input):
             result.final_answer = final_answer_match.group(1).strip()
             return result
 
-        # Extract thought
-        thought_match = re.search(S_THOUGHT_REGEX, input)
-
-        if thought_match:
+        if thought_match := re.search(S_THOUGHT_REGEX, input):
             result.thought = thought_match.group(0).strip()
         elif ACTION not in input:
             result.thought = input
@@ -236,10 +230,7 @@ class StepwisePlanner:
 
         result.thought = result.thought.replace(THOUGHT, "").strip()
 
-        # Extract action
-        action_match = re.search(S_ACTION_REGEX, input)
-
-        if action_match:
+        if action_match := re.search(S_ACTION_REGEX, input):
             action_json = action_match.group(1).strip()
 
             try:
@@ -292,14 +283,13 @@ class StepwisePlanner:
         )
 
     def create_scratch_pad(self, question: str, steps_taken: List[SystemStep]) -> str:
-        if len(steps_taken) == 0:
+        if not steps_taken:
             return ""
 
-        scratch_pad_lines: List[str] = []
-
-        # Add the original first thought
-        scratch_pad_lines.append(SCRATCH_PAD_PREFIX)
-        scratch_pad_lines.append(f"{THOUGHT}\n{steps_taken[0].thought}")
+        scratch_pad_lines: List[str] = [
+            SCRATCH_PAD_PREFIX,
+            f"{THOUGHT}\n{steps_taken[0].thought}",
+        ]
 
         # Keep track of where to insert the next step
         insert_point = len(scratch_pad_lines)
@@ -408,19 +398,12 @@ class StepwisePlanner:
                 and func.name not in excluded_functions
             )
         ]
-        available_functions = sorted(
-            available_functions, key=lambda x: (x.skill_name, x.name)
-        )
-
-        return available_functions
+        return sorted(available_functions, key=lambda x: (x.skill_name, x.name))
 
     def get_function_descriptions(self) -> str:
         available_functions = self.get_available_functions()
 
-        function_descriptions = "\n".join(
-            [self.to_manual_string(f) for f in available_functions]
-        )
-        return function_descriptions
+        return "\n".join([self.to_manual_string(f) for f in available_functions])
 
     def import_semantic_function(
         self,

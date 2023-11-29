@@ -8,8 +8,7 @@ from datetime import datetime
 def create_completion_response(
     completion_text, model, num_prompt_tokens, num_completion_tokens
 ):
-    data = [{"generated_text": completion_text}]
-    return data
+    return [{"generated_text": completion_text}]
 
 
 def create_embedding_indices(embeddings):
@@ -25,7 +24,7 @@ def create_embedding_indices(embeddings):
 
 def create_embedding_response(embeddings, num_prompt_tokens):
     data_entries = create_embedding_indices(embeddings)
-    data = {
+    return {
         "object": "list",
         "data": data_entries,
         "usage": {
@@ -33,9 +32,7 @@ def create_embedding_response(embeddings, num_prompt_tokens):
             "total_tokens": num_prompt_tokens,
         },
     }
-    return data
 
 
 def create_image_gen_response(image_data):
-    data = {"created": datetime.now(), "data": image_data}
-    return data
+    return {"created": datetime.now(), "data": image_data}

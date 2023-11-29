@@ -19,13 +19,7 @@ def memoryrecord_to_milvus_dict(mem: MemoryRecord) -> dict:
     Returns:
         dict: Dict result.
     """
-    ret_dict = {}
-    # Grab all the class vars
-    for key, val in vars(mem).items():
-        if val is not None:
-            # Remove underscore
-            ret_dict[key[1:]] = val
-    return ret_dict
+    return {key[1:]: val for key, val in vars(mem).items() if val is not None}
 
 
 def milvus_dict_to_memoryrecord(milvus_dict: dict) -> MemoryRecord:
@@ -175,7 +169,7 @@ class MilvusMemoryStore(MemoryStoreBase):
         Returns:
             bool: True if it exists, False otherwise.
         """
-        return True if collection_name in self._client.list_collections() else False
+        return collection_name in self._client.list_collections()
 
     async def upsert_async(self, collection_name: str, record: MemoryRecord) -> str:
         """Upsert a single MemoryRecord into the collection.
@@ -464,7 +458,4 @@ class MilvusMemoryStore(MemoryStoreBase):
             min_relevance_score,
             with_embedding,
         )
-        if len(m) > 0:
-            return m[0]
-        else:
-            return None
+        return m[0] if len(m) > 0 else None

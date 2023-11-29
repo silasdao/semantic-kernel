@@ -316,14 +316,12 @@ class ActionPlanner:
             if (result := self._create_parameter_string(x)) is not None
         ]
 
-        if len(parameters_list) == 0:
+        if not parameters_list:
             parameters = "No parameters."
         else:
             parameters = "\n".join(parameters_list)
 
-        func_str = f"{description}\n{name}\n{parameters}"
-
-        return func_str
+        return f"{description}\n{name}\n{parameters}"
 
     def _create_parameter_string(self, parameter: ParameterView) -> str:
         """

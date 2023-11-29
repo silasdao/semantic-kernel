@@ -41,7 +41,7 @@ class ValBlock(Block):
             self.log.error(error_msg)
             return False, error_msg
 
-        if self._first != Symbols.DBL_QUOTE and self._first != Symbols.SGL_QUOTE:
+        if self._first not in [Symbols.DBL_QUOTE, Symbols.SGL_QUOTE]:
             error_msg = (
                 "A value must be wrapped in either single quotes or double quotes"
             )
@@ -66,5 +66,5 @@ class ValBlock(Block):
         return (
             text is not None
             and len(text) > 0
-            and (text[0] == Symbols.DBL_QUOTE or text[0] == Symbols.SGL_QUOTE)
+            and text[0] in [Symbols.DBL_QUOTE, Symbols.SGL_QUOTE]
         )

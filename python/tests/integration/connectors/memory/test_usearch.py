@@ -134,7 +134,7 @@ def compare_memory_records(
     assert (
         record1._additional_metadata == record2._additional_metadata
     ), f"_additional_metadata mismatch: {record1._additional_metadata} != {record2._additional_metadata}"
-    if with_embedding is True:
+    if with_embedding:
         assert np.array_equal(
             record1._embedding, record2._embedding
         ), "_embedding arrays are not equal"

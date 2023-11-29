@@ -84,8 +84,7 @@ class GoogleConnector(ConnectorBase):
                     self._logger.info("Request successful.")
                     self._logger.info(f"API Response: {data}")
                     items = data["items"]
-                    result = [x["snippet"] for x in items]
-                    return result
+                    return [x["snippet"] for x in items]
                 else:
                     self._logger.error(
                         f"Request to Google Search API failed with status code: {response.status}."

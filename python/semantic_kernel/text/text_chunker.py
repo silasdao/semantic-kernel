@@ -292,21 +292,20 @@ def _split_str(
     else:
         return text_as_is, input_was_split
 
-    if 0 < cutpoint < len(text):
-        lines = []
-        for text_part in [text[:cutpoint], text[cutpoint:]]:
-            split, has_split = _split_str(
-                text=text_part,
-                max_tokens=max_tokens,
-                separators=separators,
-                trim=trim,
-                token_counter=token_counter,
-            )
-            lines.extend(split)
-            input_was_split = input_was_split or has_split
-    else:
+    if not 0 < cutpoint < len(text):
         return text_as_is, input_was_split
 
+    lines = []
+    for text_part in [text[:cutpoint], text[cutpoint:]]:
+        split, has_split = _split_str(
+            text=text_part,
+            max_tokens=max_tokens,
+            separators=separators,
+            trim=trim,
+            token_counter=token_counter,
+        )
+        lines.extend(split)
+        input_was_split = input_was_split or has_split
     return lines, input_was_split
 
 

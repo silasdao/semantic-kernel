@@ -17,8 +17,7 @@ async def text_completion_example_complete_async(kernel, api_key, user_mssg, set
         "models/text-bison-001", api_key
     )
     kernel.add_text_completion_service("models/text-bison-001", palm_text_completion)
-    answer = await palm_text_completion.complete_async(user_mssg, settings)
-    return answer
+    return await palm_text_completion.complete_async(user_mssg, settings)
 
 
 async def main() -> None:
